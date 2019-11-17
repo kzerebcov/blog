@@ -2,7 +2,7 @@
 {
   bubbles: true,
   detail: {
-    [id: '<id>',]
+    [id: '<id>',] // for UPDATE, DELETE actions
     action: 'create|update|delete',
     component: <NAME>Component,
     [self: this,]
