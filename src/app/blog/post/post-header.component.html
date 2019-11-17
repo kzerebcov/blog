@@ -1,0 +1,28 @@
+<article class="post has-post-thumbnail" *appOverlay>
+  <div class="post-image" style="width: 100%" *appResizable>
+    <a routerLink="/{{post.slug}}">
+      <img src="{{post.image.url}}" alt="{{post.image.alt}}"/>
+      <!--width="{{post.image.width}}" height="{{post.image.height}}"-->
+    </a>
+  </div>
+  <div class="post-content">
+    <div class="post-content-inner">
+      <h3 class="post-title"><a routerLink="/{{post.slug}}">{{post.header.title}}</a></h3>
+      <p class="post-excerpt">{{post.header.excerpt}}</p>
+      <app-test></app-test>
+    </div>
+    <div class="post-meta-wrapper">
+      <ul class="post-meta">
+        <li class="meta-date">
+          <a href="post,html"><time class="published" datetime="2018-02-03">February 3, 2018</time></a>
+        </li>
+        <li class="meta-author">
+          <a href="#">{{post.header.author}}</a>
+        </li>
+        <li class="meta-comments">
+          <a routerLink="/{{post.slug}}#comments">3 Comments</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</article>

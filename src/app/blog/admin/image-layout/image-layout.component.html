@@ -1,0 +1,30 @@
+<ng-container *appOverlay>
+    <ul class="nav nav-tabs" id="imageLayoutControl" role="tablist">
+      <li class="nav-item" [class.active]="view==ImageLayoutView.Upload" (click)="changeView(ImageLayoutView.Upload)">
+        <a class="nav-link">Upload</a>
+      </li>
+      <li class="nav-item" [class.active]="view==ImageLayoutView.Preview" [class.disabled]="!imageLayout.url" (click)="changeView(ImageLayoutView.Preview)">
+        <a class="nav-link">Preview</a>
+      </li>
+      <li class="pull-right" [class.active]="view==ImageLayoutView.Settings" [class.disabled]="!imageLayout.url" (click)="changeView(ImageLayoutView.Settings)">
+        <a class="nav-link">Settings</a>
+      </li>
+    </ul>
+
+    <ng-container [ngSwitch]="view">
+      <div class="tab-content" id="imageLayoutContent" #imageLayoutContent>
+        <div id="imageLayoutUpload" *ngSwitchCase="ImageLayoutView.Upload">
+          <app-upload-file (base64FileLoaded)="imageLayout.url=$event"></app-upload-file>
+        </div>
+        <div id="imageLayoutPreview" *ngSwitchCase="ImageLayoutView.Preview"><img src="{{imageLayout.url}}" alt="{{imageLayout.alt}}"></div>
+        <div id="imageLayoutSettings" *ngSwitchCase="ImageLayoutView.Settings">
+          <p>
+            <!--<input type="url" placeholder="URL&hellip;" (change)="block.data.url = $event.target.value" value="{{block.data.url}}">
+            <input type="text" placeholder="Placeholder text&hellip;" (change)="block.data.alt = $event.target.value" value="{{block.data.alt}}">-->
+            TEST
+            <app-test></app-test>
+          </p>
+        </div>
+      </div>
+    </ng-container>
+</ng-container>

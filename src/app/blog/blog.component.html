@@ -1,0 +1,18 @@
+<ng-container *appOverlay="'^/test/message'">
+<app-blog-admin (change)="updateView($event)"></app-blog-admin>
+
+<h2 class="sr-only">Blog</h2>
+<div class="blog-listing">
+  <app-post-header *ngFor="let post of posts" [post]="post"></app-post-header>
+  <div class="pagination">
+    <a *ngIf="this.currentPage > 1" [routerLink]="['/posts', { page: this.currentPage - 1 }]" class="page-numbers">Previous Page</a>
+    <ng-container *ngFor="let n of fakeArray; let index = index">
+      <a *ngIf="index + 1 != this.currentPage" [routerLink]="['/posts', { page: index + 1 }]" class="page-numbers">Page {{index + 1}}</a>
+      <ng-container *ngIf="index + 1 == this.currentPage"><span class="page-numbers current">Page {{this.currentPage}}</span></ng-container>
+    </ng-container>
+    <a *ngIf="this.currentPage < this.pages" [routerLink]="['/posts', { page: (this.currentPage + 1) }]" class="page-numbers">Next Page</a>
+  </div>
+</div>
+
+  <app-test></app-test>
+</ng-container>

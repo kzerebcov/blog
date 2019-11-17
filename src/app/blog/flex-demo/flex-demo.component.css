@@ -1,0 +1,84 @@
+.demo-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+
+  flex: 1;
+  display: flex;
+}
+
+.demo-item {
+  flex: 1 1 auto;
+
+  font-family: Verdana;
+  color: wheat;
+  font-size: 4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.demo-top {
+  width: 100%;
+  height: 33%;
+}
+
+.demo-left {
+  width: 33%;
+}
+
+.demo-right {
+  width: 33%;
+}
+
+.demo-bottom {
+  width: 100%;
+  height: 33%;
+}
+
+.demo-resizable {
+  width: 100px;  /* Or whatever */
+  height: 100px; /* Or whatever */
+  margin: auto;  /* Magic! */
+
+  font-family: Verdana;
+  color: wheat;
+  font-size: 4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px tomato solid;
+}
+
+.demo-container div:nth-of-type(1n) {
+  background: tomato;
+  border: 4px tomato solid;
+}
+
+.demo-container div:nth-of-type(2n) {
+  background: orange;
+}
+
+.demo-container div:nth-of-type(3n) {
+  background: dodgerblue;
+}
+
+.demo-container div:nth-of-type(4n) {
+  background: mediumseagreen;
+}
+
+.demo-container div:nth-of-type(5n) {
+  background: darkslateblue;
+}
+
+.demo-container div:nth-of-type(6n) {
+  background: slateblue;
+}
+
+.demo-container div:nth-of-type(7n) {
+  background: violet;
+}
+
+.demo-container div:nth-of-type(8n) {
+  background: deepskyblue;
+}

@@ -1,0 +1,56 @@
+<!--<div class="inner clearfix">-->
+  <article class="post has-post-thumbnail">
+    <div class="post-image">
+      <img src="{{post.image.url}}" width="1350" height="900" alt="{{post.image.alt}}">
+    </div>
+    <div class="post-content">
+      <div class="post-content-inner">
+        <h3 class="post-title">{{post.header.title}}</h3>
+        <ng-container *ngFor="let part of post.article">
+          <ng-container *ngIf="part.type == 'paragraph'">
+            <p>{{part.text}}</p>
+          </ng-container>
+
+          <ng-container *ngIf="part.type == 'quote'">
+            <blockquote>
+              <p>{{part.text}}</p>
+              <cite>{{part.subtitle}}</cite>
+            </blockquote>
+          </ng-container>
+
+          <ng-container *ngIf="part.type == 'code'">
+            <pre>{{part.text}}</pre>
+          </ng-container>
+
+          <ng-container *ngIf="part.type == 'image'">
+            <img src="{{part.url}}" alt="{{part.alt}}">
+          </ng-container>
+        </ng-container>
+      </div>
+      <div class="post-meta-wrapper">
+        <ul class="post-meta">
+          <li class="meta-date">
+            <a href="post,html"><time class="published" datetime="2018-02-03">February 3, 2018</time></a>
+          </li>
+          <li class="meta-author">
+            <a href="#">{{post.header.author}}</a>
+          </li>
+          <li class="meta-comments">
+            <a href="post.html#comments">3 Comments</a>
+          </li>
+        </ul>
+        <ul class="post-meta post-categories">
+          <li class="meta-title">Categories</li>
+          <li class="meta-category"><a href="#">Landscapes</a></li>
+          <li class="meta-category"><a href="#">Nature</a></li>
+        </ul>
+        <ul class="post-meta post-tags">
+          <li class="meta-title">Tags</li>
+          <li class="meta-tag"><a href="#">minimal</a></li>
+          <li class="meta-tag"><a href="#">static</a></li>
+        </ul>
+      </div>
+      <div class="clear"></div>
+    </div>
+  </article>
+<!--</div>-->

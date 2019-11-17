@@ -1,0 +1,135 @@
+<p align="right">
+  <a href="#" class="button filled color" data-toggle="modal" data-target="#exampleModal">New</a>
+</p>
+
+<div id="exampleModal" class="modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">New post</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <ng-container *ngIf="editor.view == editor.EditorView.New">
+          <ng-container *ngIf="editor.post.image">
+            <img *ngIf="!editor.focus" src="{{editor.post.image.url}}" alt="{{editor.post.image.alt}}" (click)="editor.focus = true">
+            <div *ngIf="editor.focus">
+              <app-image-layout [imageLayout]="editor.post.image"></app-image-layout>
+              <!--<p>
+                <input type="url" placeholder="URL&hellip;" (change)="editor.post.image.url = $event.target.value" value="{{editor.post.image.url}}">
+                <input type="text" placeholder="Placeholder text&hellip;" (change)="editor.post.image.alt = $event.target.value" value="{{editor.post.image.alt}}">
+              </p>-->
+
+              <p align="right">
+                <a href="#" class="button underline" (click)="editor.focus = false">Apply</a>
+                <a href="#" class="button underline" (click)="editor.removeImage()">Remove</a>
+              </p>
+            </div>
+          </ng-container>
+
+          <p *ngIf="!editor.post.image.url">
+            &#10532;
+            <a href="#" class="button underline" (click)="editor.addImage()">Image</a>
+          </p>
+          <hr>
+
+          <form action="post.html" method="post" id="commentform" class="comment-form">
+            <div class="comment-form-title">
+              <input type="text" placeholder="Post title&hellip;" value="{{editor.post.header.title}}" (change)="editor.post.header.title = $event.target.value; editor.updateSlug($event.target.value)">
+            </div>
+
+            <div>
+              <p class="comment-notes"><span id="tile-note">Add your post contents here.</span></p>
+            </div>
+            <ng-container *ngFor="let block of editor.queue; let index = index">
+              <ng-container *ngIf="block.data.type == 'paragraph'">
+                <p *ngIf="!block.focus" (click)="editor.setFocus(index)">{{block.data.text}}</p>
+                <textarea *ngIf="block.focus" rows="5" placeholder="Type your text here&hellip;" (change)="block.data.text = $event.target.value">{{block.data.text}}</textarea>
+              </ng-container>
+
+              <ng-container *ngIf="block.data.type == 'quote'">
+                <div *ngIf="!block.focus">
+                  <blockquote (click)="editor.setFocus(index)">
+                    <p>{{block.data.text}}</p>
+                    <cite>{{block.data.subtitle}}</cite>
+                  </blockquote>
+                </div>
+
+                <div *ngIf="block.focus">
+                  <p>
+                    <input type="text" placeholder="Quote&hellip;" (change)="block.data.text = $event.target.value" value="{{block.data.text}}">
+                    <input type="text" placeholder="Subtitle&hellip;" (change)="block.data.subtitle = $event.target.value" value="{{block.data.subtitle}}">
+                  </p>
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="block.data.type == 'code'">
+                <pre *ngIf="!block.focus" (click)="editor.setFocus(index)">{{block.data.text}}</pre>
+                <textarea *ngIf="block.focus" rows="5" placeholder="Type your block of code here&hellip;" (change)="block.data.text = $event.target.value">{{block.data.text}}</textarea>
+              </ng-container>
+
+              <ng-container *ngIf="block.data.type == 'image'">
+                <p *ngIf="!block.focus">
+                  <img src="{{block.data.url}}" alt="{{block.data.alt}}" (click)="editor.setFocus(index)">
+                </p>
+                <div *ngIf="block.focus">
+                  <app-image-layout [imageLayout]="this.block.data"></app-image-layout>
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="block.focus">
+                <p align="right">
+                  <a href="#" class="button underline" (click)="block.setFocus(false)">Apply</a>
+                  <a *ngIf="index > 0" href="#" class="button underline" (click)="editor.moveUp(index)">Up</a>
+                  <a *ngIf="index < editor.queue.length - 1" href="#" class="button underline" (click)="editor.moveDown(index)">Down</a>
+                  <a href="#" class="button underline" (click)="editor.removeBlock(index)">Remove</a>
+                </p>
+              </ng-container>
+            </ng-container>
+
+            <p>
+              &#10532;
+              <a href="#" class="button underline" (click)="editor.addItem('paragraph')">Paragraph</a>
+              <a href="#" class="button underline" (click)="editor.addItem('quote')">Quote</a>
+              <a href="#" class="button underline" (click)="editor.addItem('image')">Image</a>
+              <a href="#" class="button underline" (click)="editor.addItem('code')">Code</a>
+            </p>
+
+            <hr>
+            <textarea disabled="disabled" rows="5" (change)="editor.post.header.excerpt = $event.target.value">{{editor.post.header.excerpt}}</textarea>
+
+            <div class="comment-form-url">
+              <input id="url" name="url" type="url" placeholder="URL&hellip;" disabled="disabled" value="{{editor.post.slug}}">
+            </div>
+          </form>
+        </ng-container>
+        <ng-container *ngIf="editor.view == editor.EditorView.Preview">
+          <ul class="nav nav-tabs" id="imageLayoutControl" role="tablist">
+            <li class="nav-item">
+              <a class="nav-link">Title</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link">Post</a>
+            </li>
+            <li class="pull-right">
+              <a class="nav-link">Settings</a>
+            </li>
+          </ul>
+          <app-post-header [post]="editor.post"></app-post-header>
+          <app-post [post]="editor.post"></app-post>
+        </ng-container>
+      </div>
+      <div [ngSwitch]="editor.view" class="modal-footer">
+        <button *ngSwitchCase="editor.EditorView.New" type="button" class="button filled color" (click)="editor.preview()">Preview</button>
+        <button *ngSwitchCase="editor.EditorView.Preview" type="button" class="button filled color" (click)="editor.view = editor.EditorView.New">Back</button>
+        <button *ngSwitchCase="editor.EditorView.Preview" [ngSwitch]="editor.action" type="button" [disabled]="editor.action != editor.EditorAction.Ready" class="button filled color orange" (click)="editor.publish()">
+          <ng-container *ngSwitchCase="editor.EditorAction.Waiting"><img src="assets/img/load-05.gif" style="width: 50px"></ng-container>
+          <ng-container *ngSwitchDefault>Publish</ng-container>
+        </button>
+        <button type="button" class="button" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
