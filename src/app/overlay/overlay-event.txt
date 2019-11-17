@@ -18,16 +18,11 @@
 
 ---
 
-currentId: string;
+  currentId: string;
   overlayHandlerCallback(overlayDetailRef): void {
     console.log(overlayDetailRef);
     this.currentId = overlayDetailRef.id;
     console.log('first id: ' + this.currentId);
-
-    // TODO: Target native element resizable.
-    //console.log('callback');
-    //console.log(overlayDetailRef.hostNativeElementRef);
-    //this.renderer.setAttribute(overlayDetailRef.hostNativeElementRef, '*appResizable', '');
   }
 
   emitEvent(event) {
@@ -76,7 +71,7 @@ currentId: string;
           action: 'create',
           component: ImageLayoutOverlayComponent,
           classes: ['test-component-backdrop'],
-          self: this, // TODO: Do you really need this self? Can tage from event.target?
+          self: this, // TODO: Do you really need this self reference? Could this me taken from event.target?
           position: { width: '100%', height: '100%', left: 0, top: 0 }
         }
       }));
