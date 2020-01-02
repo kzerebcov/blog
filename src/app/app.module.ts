@@ -11,14 +11,16 @@ import { PostHeaderComponent } from './blog/post/post-header.component';
 import { DragDropDirective } from './blog/admin/upload-file/drag-drop.directive';
 import { UploadFileComponent } from './blog/admin/upload-file/upload-file.component';
 import { ImageLayoutComponent } from './blog/admin/image-layout/image-layout.component';
-import { OverlayComponent } from './overlay/overlay.component';
-import { OverlayDirective } from './overlay/overlay.directive';
+//import { OverlayComponent } from './overlay/overlay.component';
+//import { OverlayDirective } from './overlay/overlay.directive';
 import { ImageLayoutOverlayComponent } from './blog/admin/image-layout/image-layout-overlay/image-layout-overlay.component';
 import { TestComponent } from './blog/admin/image-layout/test.component';
-import { WrapperContainerComponent } from './overlay/wrapper-container.component';
-import { WrapperDirective } from './overlay/wrapper.directive';
+//import { WrapperContainerComponent } from './overlay/wrapper-container.component';
+//import { WrapperDirective } from './overlay/wrapper.directive';
 import { ResizableDirective } from './blog/resizable.directive';
 import { FlexDemoComponent } from './blog/flex-demo/flex-demo.component';
+import { PopupMessageComponent } from './blog/admin/popup-message.component';
+import { OverlayModule } from "./overlay/overlay.module";
 
 @NgModule({
   declarations: [
@@ -30,23 +32,25 @@ import { FlexDemoComponent } from './blog/flex-demo/flex-demo.component';
     UploadFileComponent,
     DragDropDirective,
     ImageLayoutComponent,
-    OverlayComponent,
-    OverlayDirective,
     ImageLayoutOverlayComponent,
     TestComponent,
-    WrapperContainerComponent,
-    WrapperDirective,
     ResizableDirective,
-    FlexDemoComponent
+    FlexDemoComponent,
+    PopupMessageComponent,
+    /*WrapperContainerComponent,
+    OverlayComponent,
+    WrapperDirective,
+    OverlayDirective*/
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    OverlayModule
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [ApiService, HttpClient],
   bootstrap: [AppComponent],
-  entryComponents: [OverlayComponent, WrapperContainerComponent, ImageLayoutOverlayComponent]
+  entryComponents: [ImageLayoutOverlayComponent, PopupMessageComponent]
 })
 export class AppModule { }

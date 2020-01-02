@@ -6,16 +6,11 @@ import {Component, ComponentFactoryResolver, Injector, OnInit, TemplateRef, View
   styleUrls: ['./image-layout-overlay.component.css']
 })
 export class ImageLayoutOverlayComponent implements OnInit {
-
-
   constructor() { }
 
-  currentId: string;
+  private currentId: string = '';
   overlayHandlerCallback(overlayDetailRef): void {
-    console.log('image-layout-component!!!');
-    console.log(overlayDetailRef);
     this.currentId = overlayDetailRef.id;
-    console.log('image-layout-component / first id: ' + this.currentId);
   }
 
   test(e) {

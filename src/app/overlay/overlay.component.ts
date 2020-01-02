@@ -18,7 +18,7 @@ import {
 export class OverlayComponent implements OnInit {
   @Input() template: TemplateRef<any>;
 
-  private componentRef;
+  public targetComponentRef;
   public targetNativeElement;
 
   constructor(
@@ -30,15 +30,12 @@ export class OverlayComponent implements OnInit {
 
   ngOnInit() { }
 
-  public initiate(targetComponent: Type<any>, overlayDetailRef: any = {}) {
+  public initiate(targetComponent: Type<any>) {
     this.viewContainer.clear();
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(targetComponent);
-    this.componentRef = this.viewContainer.createComponent(componentFactory);
+    this.targetComponentRef = this.viewContainer.createComponent(componentFactory);
     this.targetNativeElement = this.renderer.createElement('DIV');
-    this.renderer.appendChild(this.targetNativeElement, this.componentRef.location.nativeElement);
+    this.renderer.appendChild(this.targetNativeElement, this.targetComponentRef.location.nativeElement);
     this.renderer.appendChild(this.elementRef.nativeElement, this.targetNativeElement);
-    if (this.componentRef.instance.overlayHandlerCallback) {
-      this.componentRef.instance.overlayHandlerCallback(overlayDetailRef);
-    }
   }
 }

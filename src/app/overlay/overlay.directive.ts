@@ -12,12 +12,14 @@ import {
 import {OverlayComponent} from './overlay.component';
 import {WrapperContainerComponent} from './wrapper-container.component';
 import {isArray, isNull} from 'util';
+import {OverlayConfiguration} from "./overlay-dispatcher.service";
 
 @Directive({
   selector: '[appOverlay]'
 })
 export class OverlayDirective implements OnDestroy, OnInit {
   private wrapperComponentRef;
+  private subscribers: any = [];
   private overlayQueue: any = [];
   @Input('appOverlay') overlaySubject: string;
 
@@ -28,6 +30,18 @@ export class OverlayDirective implements OnDestroy, OnInit {
     private viewContainer: ViewContainerRef,
     private componentFactoryResolver: ComponentFactoryResolver
   ) { }
+
+  callback(overlayConfigurationRef: OverlayConfiguration): void {
+    for (let callbackSubscriber of this.subscribers) {
+      callbackSubscriber.overlayHandlerCallback(overlayConfigurationRef);
+    }
+  }
+
+  subscribe(callbackSubscriber: any = null): void {
+    if(callbackSubscriber && callbackSubscriber.overlayHandlerCallback) {
+      this.subscribers.push(callbackSubscriber);
+    }
+  }
 
   ngOnInit(): void {
     this.initiate();
@@ -42,7 +56,14 @@ export class OverlayDirective implements OnDestroy, OnInit {
     if (overlayConfiguration.classes && isArray(overlayConfiguration.classes)) {
       overlayConfiguration.classes.forEach((className) => this.renderer.addClass(overlayNativeElementRef, className));
     } else {
-      this.renderer.setStyle(overlayNativeElementRef, 'background-color', 'rgb(0,0,0,0.75)');
+      /*
+      TODO: define CSS class '.default-overlay-wrappable'
+       */
+      this.renderer.setStyle(overlayNativeElementRef, 'display', 'flex');
+      this.renderer.setStyle(overlayNativeElementRef, 'flex-flow', 'row nowrap');
+      this.renderer.setStyle(overlayNativeElementRef, 'justify-content', 'center');
+      this.renderer.setStyle(overlayNativeElementRef, 'align-items', 'center');
+      //this.renderer.setStyle(overlayNativeElementRef, 'background-color', 'rgb(0,0,0,0.75)');
     }
   }
 
@@ -220,20 +241,26 @@ export class OverlayDirective implements OnDestroy, OnInit {
       'overlayEvent',
       (evt) => this.overlayEventHandler(evt)
     );
+
+    /*
     if (overlayConfiguration.self && overlayConfiguration.self.overlayHandlerCallback) {
       overlayConfiguration.self.overlayHandlerCallback(overlayConfiguration);
     }
+     */
   }
 
   overlayCreate(overlayEvent) {
     this.registerOverlay(overlayEvent.detail);
     const componentRef = this.viewContainer.createComponent(this.componentFactoryResolver.resolveComponentFactory(OverlayComponent));
-    componentRef.instance.initiate(overlayEvent.detail.component, overlayEvent.detail);
+    componentRef.instance.initiate(overlayEvent.detail.component);
     const overlayNativeElementRef = componentRef.instance.targetNativeElement;
     const hostNativeElementRef = this.wrapperComponentRef.instance.elementRef.nativeElement.firstChild;
     overlayEvent.detail.componentRef = componentRef;
     overlayEvent.detail.hostNativeElementRef = hostNativeElementRef;
-    this.renderOverlay(overlayNativeElementRef, hostNativeElementRef, overlayEvent.detail);
+    overlayEvent.detail.overlayNativeElementRef = overlayNativeElementRef;
+    this.renderOverlay(overlayNativeElementRef, hostNativeElementRef);
+    this.subscribe(componentRef.instance.targetComponentRef.instance);
+    this.subscribe(overlayEvent.detail.self);
   }
 
   checkOverlayEvent(overlayEvent): boolean {
@@ -282,7 +309,10 @@ export class OverlayDirective implements OnDestroy, OnInit {
         case 'DELETE':
           this.overlayDelete(overlayEvent);
           break;
+        default:
+          return;
       }
+      this.callback(overlayEvent.detail);
     }
   }
 
@@ -291,6 +321,7 @@ export class OverlayDirective implements OnDestroy, OnInit {
     this.wrapperComponentRef = this.viewContainer.createComponent(
       this.componentFactoryResolver.resolveComponentFactory(WrapperContainerComponent)
     );
+
     this.wrapperComponentRef.instance.template = this.templateRef;
 
     this.renderer.listen(

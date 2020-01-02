@@ -14,9 +14,11 @@
     <ng-container [ngSwitch]="view">
       <div class="tab-content" id="imageLayoutContent" #imageLayoutContent>
         <div id="imageLayoutUpload" *ngSwitchCase="ImageLayoutView.Upload">
-          <app-upload-file (base64FileLoaded)="imageLayout.url=$event"></app-upload-file>
+          <app-upload-file (updateLoadStatus)="updateLoadStatus($event)" (base64FileLoaded)="imageLayout.url=$event; changeView(ImageLayoutView.Preview)"></app-upload-file>
         </div>
-        <div id="imageLayoutPreview" *ngSwitchCase="ImageLayoutView.Preview"><img src="{{imageLayout.url}}" alt="{{imageLayout.alt}}"></div>
+        <div id="imageLayoutPreview" *ngSwitchCase="ImageLayoutView.Preview">
+          <img src="{{imageLayout.url}}" alt="{{imageLayout.alt}}">
+        </div>
         <div id="imageLayoutSettings" *ngSwitchCase="ImageLayoutView.Settings">
           <p>
             <!--<input type="url" placeholder="URL&hellip;" (change)="block.data.url = $event.target.value" value="{{block.data.url}}">

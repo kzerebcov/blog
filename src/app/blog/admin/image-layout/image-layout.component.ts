@@ -1,4 +1,7 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
+import {ImageLayoutOverlayComponent} from "./image-layout-overlay/image-layout-overlay.component";
+import {OverlayDispatcherService} from "../../../overlay/overlay-dispatcher.service";
+import {PopupMessageComponent} from "../popup-message.component";
 
 export interface ImageLayout {
   url: string,
@@ -26,7 +29,7 @@ export class ImageLayoutComponent implements OnInit {
   @Output() change: EventEmitter<ImageLayout> = new EventEmitter<ImageLayout>();
   @ViewChild('imageLayoutContent', { static: false }) imageLayoutContent: ElementRef;
 
-  constructor() { }
+  constructor(private overlayDispatcher: OverlayDispatcherService, private elementRef: ElementRef) { }
 
   ngOnInit() {
   }
@@ -37,5 +40,31 @@ export class ImageLayoutComponent implements OnInit {
 
   declaredHandler(evt) {
     console.log('declated event handler... : ' + evt.detail.toString());
+  }
+
+  updateLoadStatus(status: any) {
+    if(status.loading) {
+      this.showPopupMessage('Loading data...');
+    }
+  }
+
+  test(y): void {
+    console.log('UPDATE-TEST');
+    console.log(y);
+    this.overlayDispatcher.updateOverlay(this.imageLayoutContent.nativeElement, y);
+  }
+
+  showPopupMessage(message: string) {
+    console.log('POPUP MESSAGE: ' + message);
+    this.overlayDispatcher.createOverlay(this.imageLayoutContent.nativeElement, {
+      component: PopupMessageComponent
+    })
+      .subscribe(
+        (overlayConfigurationRef) => {
+          console.log("NEXT");
+        },
+        () => { console.log("ERROR"); },
+        () => { console.log("COMPLETE"); }
+      );
   }
 }
