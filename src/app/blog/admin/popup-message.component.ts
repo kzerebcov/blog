@@ -5,9 +5,8 @@ import {OverlayConfiguration, OverlayDispatcherService} from "../../overlay/over
   selector: 'app-popup-message',
   template: `
     <div>
-        <p style="display: inline">
-            popup-message works!
-            &nbsp;
+        <p style="display: inline-block">
+            popup-message works!&nbsp;
             <a href="#" (click)="close()">Dismiss</a>
         </p>
     </div>
@@ -24,30 +23,18 @@ import {OverlayConfiguration, OverlayDispatcherService} from "../../overlay/over
   encapsulation: ViewEncapsulation.None
 })
 export class PopupMessageComponent implements OnInit {
+  private overlayRef: OverlayConfiguration;
   constructor(private overlayDispatcher: OverlayDispatcherService, private e: ElementRef) { }
   ngOnInit() {}
 
-  private rect: any = null;
-  private oc: any = null;
-
   overlayHandlerCallback(overlayConfigurationRef: OverlayConfiguration): void {
-    this.oc = overlayConfigurationRef;
-
-    console.log(overlayConfigurationRef.overlayNativeElementRef);
-
-    if(!this.rect) {
-      this.rect = this.e.nativeElement.getBoundingClientRect();
-      overlayConfigurationRef.position = {};
-      overlayConfigurationRef.position.width = this.rect.width;
-      overlayConfigurationRef.position.height = this.rect.height;
-      overlayConfigurationRef.position.left = 'center';
-      overlayConfigurationRef.position.top = 0;
-      overlayConfigurationRef.classes = ['popup-message-overlay'];
-      this.overlayDispatcher.updateOverlay(overlayConfigurationRef.overlayNativeElementRef, overlayConfigurationRef);
+    if(!this.overlayRef) {
+      this.overlayRef = overlayConfigurationRef;
+      this.overlayDispatcher.wrapComponentBoundingRect(overlayConfigurationRef);
     }
   }
 
   close() {
-    this.overlayDispatcher.deleteOverlay(this.oc.overlayNativeElementRef, this.oc);
+    this.overlayDispatcher.deleteOverlay(this.overlayRef);
   }
 }

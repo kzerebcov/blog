@@ -5,13 +5,15 @@ import { WrapperDirective } from './wrapper.directive';
 import { OverlayComponent } from './overlay.component';
 import { WrapperContainerComponent } from './wrapper-container.component';
 import { OverlayDispatcherService } from "./overlay-dispatcher.service";
+import { ResizableDirective } from "./resizable.directive";
 
 @NgModule({
   declarations: [
     WrapperContainerComponent,
     OverlayComponent,
+    OverlayDirective,
     WrapperDirective,
-    OverlayDirective
+    ResizableDirective
   ],
   imports: [
     CommonModule
@@ -19,7 +21,8 @@ import { OverlayDispatcherService } from "./overlay-dispatcher.service";
   entryComponents: [OverlayComponent, WrapperContainerComponent],
   providers: [OverlayDispatcherService],
   exports: [
-    OverlayDirective
+    OverlayDirective,
+    ResizableDirective
   ]
 })
 

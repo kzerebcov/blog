@@ -16,7 +16,7 @@
           <ng-container *ngIf="editor.post.image">
             <img *ngIf="!editor.focus" src="{{editor.post.image.url}}" alt="{{editor.post.image.alt}}" (click)="editor.focus = true">
             <div *ngIf="editor.focus">
-              <app-image-layout [imageLayout]="editor.post.image"></app-image-layout>
+              <app-image-layout [imageData]="editor.post.image"></app-image-layout>
               <!--<p>
                 <input type="url" placeholder="URL&hellip;" (change)="editor.post.image.url = $event.target.value" value="{{editor.post.image.url}}">
                 <input type="text" placeholder="Placeholder text&hellip;" (change)="editor.post.image.alt = $event.target.value" value="{{editor.post.image.alt}}">
@@ -75,7 +75,7 @@
                   <img src="{{block.data.url}}" alt="{{block.data.alt}}" (click)="editor.setFocus(index)">
                 </p>
                 <div *ngIf="block.focus">
-                  <app-image-layout [imageLayout]="this.block.data"></app-image-layout>
+                  <app-image-layout [imageData]="this.block.data"></app-image-layout>
                 </div>
               </ng-container>
 

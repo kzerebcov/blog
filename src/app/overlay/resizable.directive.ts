@@ -39,8 +39,9 @@ export class ResizableDirective implements OnInit, AfterViewInit {
   hostNativeElementParentRect: any = {};
 
   @Input('appResizable') resizableOptions: any;
-  @Output() onStateChanged = new EventEmitter<ResizableState>();
   @Output() onResize = new EventEmitter<any>();
+  @Output() onResizing = new EventEmitter<any>();
+  @Output() onStateChanged = new EventEmitter<any>();
 
   constructor(
     private renderer: Renderer2,
@@ -88,7 +89,11 @@ export class ResizableDirective implements OnInit, AfterViewInit {
         break;
     }
     this.resizableState = newResizableState;
-    this.onStateChanged.emit(newResizableState);
+    this.onStateChanged.emit({
+      state: newResizableState,
+      position: this.hostNativeElementPosition,
+      selectedBorder: this.selectedBorder
+    });
   }
 
   checkBorder(mouseEvent): ResizableBorder {
@@ -279,7 +284,7 @@ export class ResizableDirective implements OnInit, AfterViewInit {
                 }
                 break;
             }
-            this.onResize.emit(newPosition);
+            this.onResizing.emit(newPosition); // TODO: Check if this event is not consuming too much performance
             break;
           case 'mouseup':
             this.capturePosition();
@@ -398,6 +403,11 @@ export class ResizableDirective implements OnInit, AfterViewInit {
         this.activeConfiguration.parentHeightLimit = !!this.resizableOptions.parentHeightLimit;
       } else {
         this.activeConfiguration = {
+          top: 'px',
+          left: 'px',
+          parentTopLimit: true,
+          parentLeftLimit: true,
+
           right: 'px',
           bottom: 'px',
           parentWidthLimit: true,

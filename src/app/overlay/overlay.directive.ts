@@ -56,14 +56,8 @@ export class OverlayDirective implements OnDestroy, OnInit {
     if (overlayConfiguration.classes && isArray(overlayConfiguration.classes)) {
       overlayConfiguration.classes.forEach((className) => this.renderer.addClass(overlayNativeElementRef, className));
     } else {
-      /*
-      TODO: define CSS class '.default-overlay-wrappable'
-       */
-      this.renderer.setStyle(overlayNativeElementRef, 'display', 'flex');
-      this.renderer.setStyle(overlayNativeElementRef, 'flex-flow', 'row nowrap');
-      this.renderer.setStyle(overlayNativeElementRef, 'justify-content', 'center');
-      this.renderer.setStyle(overlayNativeElementRef, 'align-items', 'center');
-      //this.renderer.setStyle(overlayNativeElementRef, 'background-color', 'rgb(0,0,0,0.75)');
+      this.renderer.addClass(overlayNativeElementRef, 'default-overlay-view');
+      this.renderer.addClass(overlayNativeElementRef, 'default-overlay-wrapper');
     }
   }
 
@@ -241,26 +235,32 @@ export class OverlayDirective implements OnDestroy, OnInit {
       'overlayEvent',
       (evt) => this.overlayEventHandler(evt)
     );
-
-    /*
-    if (overlayConfiguration.self && overlayConfiguration.self.overlayHandlerCallback) {
-      overlayConfiguration.self.overlayHandlerCallback(overlayConfiguration);
-    }
-     */
   }
 
   overlayCreate(overlayEvent) {
     this.registerOverlay(overlayEvent.detail);
     const componentRef = this.viewContainer.createComponent(this.componentFactoryResolver.resolveComponentFactory(OverlayComponent));
-    componentRef.instance.initiate(overlayEvent.detail.component);
+    componentRef.instance.initiate(overlayEvent.detail.component, overlayEvent.detail);
     const overlayNativeElementRef = componentRef.instance.targetNativeElement;
     const hostNativeElementRef = this.wrapperComponentRef.instance.elementRef.nativeElement.firstChild;
     overlayEvent.detail.componentRef = componentRef;
     overlayEvent.detail.hostNativeElementRef = hostNativeElementRef;
     overlayEvent.detail.overlayNativeElementRef = overlayNativeElementRef;
-    this.renderOverlay(overlayNativeElementRef, hostNativeElementRef);
+    this.renderOverlay(overlayNativeElementRef, hostNativeElementRef, overlayEvent.detail);
     this.subscribe(componentRef.instance.targetComponentRef.instance);
     this.subscribe(overlayEvent.detail.self);
+  }
+
+  overlayRead(overlayEvent) {
+    if (overlayEvent.detail.self && overlayEvent.detail.self.overlayReadCallback) {
+      for (const [index, currentOverlayDetailRef] of this.overlayQueue.entries()) {
+        if ((overlayEvent.detail.id && currentOverlayDetailRef.id === overlayEvent.detail.id) ||
+          (overlayEvent.detail.subject && currentOverlayDetailRef.subject === overlayEvent.detail.subject)) {
+          overlayEvent.detail.self.overlayReadCallback(currentOverlayDetailRef);
+        }
+      }
+      overlayEvent.detail.self.overlayReadCallback();
+    }
   }
 
   checkOverlayEvent(overlayEvent): boolean {
@@ -302,6 +302,9 @@ export class OverlayDirective implements OnDestroy, OnInit {
       switch (overlayEvent.detail.action.toUpperCase()) {
         case 'CREATE':
           this.overlayCreate(overlayEvent);
+          break;
+        case 'READ':
+          this.overlayRead(overlayEvent);
           break;
         case 'UPDATE':
           this.overlayUpdate(overlayEvent);

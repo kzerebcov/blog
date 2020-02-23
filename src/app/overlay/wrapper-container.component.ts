@@ -3,7 +3,7 @@ import {Component, ElementRef, Input, OnInit, TemplateRef} from '@angular/core';
 @Component({
   selector: 'app-wrapper-container',
   template: `
-    <div class="wrapper-component">
+    <div style="display: inline-block">
       <ng-container *ngTemplateOutlet="template"></ng-container>
     </div>
   `,

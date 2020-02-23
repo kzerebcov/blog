@@ -1,11 +1,11 @@
-<article class="post has-post-thumbnail" *appOverlay>
+<article class="post has-post-thumbnail">
   <div class="post-image" style="width: 100%" *appResizable>
     <a routerLink="/{{post.slug}}">
       <img src="{{post.image.url}}" alt="{{post.image.alt}}"/>
       <!--width="{{post.image.width}}" height="{{post.image.height}}"-->
     </a>
   </div>
-  <div class="post-content">
+  <div class="post-content" *appOverlay>
     <div class="post-content-inner">
       <h3 class="post-title"><a routerLink="/{{post.slug}}">{{post.header.title}}</a></h3>
       <p class="post-excerpt">{{post.header.excerpt}}</p>

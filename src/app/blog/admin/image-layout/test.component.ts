@@ -1,10 +1,11 @@
 import {Component, ElementRef, EventEmitter, Input, OnInit, Output, Renderer2, ViewEncapsulation} from '@angular/core';
 import {ImageLayoutOverlayComponent} from './image-layout-overlay/image-layout-overlay.component';
+import {OverlayDispatcherService} from "../../../overlay/overlay-dispatcher.service";
 
 @Component({
   selector: 'app-test',
   template: `
-    <div *appOverlay>
+    <div>
       <button (click)="test($event)">Test1!</button>
       <button (click)="test2($event)">Test2: {{this.currentId}}</button>
       <button (click)="test3($event)">Fixed</button>
@@ -18,14 +19,15 @@ export class TestComponent implements OnInit {
   @Output() testEvent: EventEmitter<any> = new EventEmitter<any>();
 
   constructor(
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private overlayDispatcher: OverlayDispatcherService
   ) {}
 
   currentId: string;
   overlayHandlerCallback(overlayDetailRef): void {
-    console.log(overlayDetailRef);
+    //console.log(overlayDetailRef);
     this.currentId = overlayDetailRef.id;
-    console.log('first id: ' + this.currentId);
+    //console.log('first id: ' + this.currentId);
 
     // TODO: Target native element resizable.
     //console.log('callback');
@@ -43,8 +45,8 @@ export class TestComponent implements OnInit {
           self: this,
           zIndex: 1000,
           position: {
-            width: '150%',
-            height: '150%',
+            width: '100%',
+            height: '100%',
             top: 'center',
             left: 'center'
           }
@@ -70,6 +72,7 @@ export class TestComponent implements OnInit {
   }
 
   emitEvent3(event) {
+    /*
     event.target.dispatchEvent(new CustomEvent('overlayEvent',
       {
         bubbles: true,
@@ -78,11 +81,27 @@ export class TestComponent implements OnInit {
           zIndex: 2000,
           action: 'create',
           component: ImageLayoutOverlayComponent,
-          //classes: ['test-component-backdrop'],
+          classes: ['test-component-backdrop'],
           self: this,
           position: { width: '100%', height: '100%', left: 0, top: 0 }
         }
       }));
+     */
+
+    this.overlayDispatcher.createOverlay(event.target, {
+      window: true,
+      zIndex: 2000,
+      action: 'create',
+      component: ImageLayoutOverlayComponent,
+      classes: ['test-component-backdrop'],
+      self: this,
+      position: { width: '100%', height: '100%', left: 0, top: 0 }
+    })
+      .subscribe(
+        (overlayConfigurationRef) => {}//,
+        //() => { console.log("ERROR"); },
+        //() => { console.log("COMPLETE"); }
+      );
   }
 
   ngOnInit() { }

@@ -1,0 +1,14 @@
+.default-overlay-view {
+  background-color: rgb(0,0,0,0.75);
+}
+
+.default-overlay-wrapper {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+.default-overlay-blank {
+
+}

@@ -1,19 +1,21 @@
 import {
   Component,
-  ComponentFactoryResolver,
+  ComponentFactoryResolver, ComponentRef,
   ElementRef,
   Input,
   OnInit,
   Renderer2,
   TemplateRef,
   Type,
-  ViewContainerRef
+  ViewContainerRef, ViewEncapsulation
 } from '@angular/core';
+import {OverlayConfiguration} from "./overlay-dispatcher.service";
 
 @Component({
   selector: 'app-overlay',
   template: '',
-  styles: []
+  styleUrls: ['./overlay.component.css'],
+  encapsulation: ViewEncapsulation.None  // Use to disable CSS Encapsulation for this component
 })
 export class OverlayComponent implements OnInit {
   @Input() template: TemplateRef<any>;
@@ -30,12 +32,14 @@ export class OverlayComponent implements OnInit {
 
   ngOnInit() { }
 
-  public initiate(targetComponent: Type<any>) {
+  public initiate(targetComponent: Type<any>, overlayRef: OverlayConfiguration) {
     this.viewContainer.clear();
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(targetComponent);
     this.targetComponentRef = this.viewContainer.createComponent(componentFactory);
     this.targetNativeElement = this.renderer.createElement('DIV');
     this.renderer.appendChild(this.targetNativeElement, this.targetComponentRef.location.nativeElement);
     this.renderer.appendChild(this.elementRef.nativeElement, this.targetNativeElement);
+    overlayRef.targetComponentRef = this.targetComponentRef;
+    overlayRef.targetNativeElementRef = this.targetComponentRef.location.nativeElement;
   }
 }

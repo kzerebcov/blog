@@ -1,0 +1,1 @@
+if(overlayConfigurationRef.overlayNativeElementRef.classList.contains('default-overlay-wrapper')) { }

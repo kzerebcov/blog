@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {Injectable, Renderer2} from '@angular/core';
 import { Observable } from "rxjs";
 
 export interface OverlaySubscriber {
@@ -13,8 +13,11 @@ export interface OverlayConfiguration {
   multilayer?: boolean,
   classes?: any[],
   self?: any,
+  subject?: string,
+  targetComponentRef?: any,
   hostNativeElementRef?: any,
   overlayNativeElementRef?: any,
+  targetNativeElementRef?: any,
   zIndex?: number,
   position?: {
     top?: any,
@@ -29,6 +32,18 @@ export interface OverlayConfiguration {
 })
 export class OverlayDispatcherService {
   constructor() { }
+  wrapComponentBoundingRect(overlayConfigurationRef: OverlayConfiguration): void {
+      let rect = overlayConfigurationRef.targetNativeElementRef.firstChild.getBoundingClientRect();
+      if(!overlayConfigurationRef.position) {
+        overlayConfigurationRef.position = {};
+        overlayConfigurationRef.position.left = 'center';
+        overlayConfigurationRef.position.top = 0;
+      }
+      overlayConfigurationRef.position.width = rect.width;
+      overlayConfigurationRef.position.height = rect.height;
+      this.updateOverlay(overlayConfigurationRef);
+  }
+
   createOverlay(targetNativeElementRef: any, overlayConfigurationRef: OverlayConfiguration) {
     return new Observable<OverlayConfiguration>(
       (observer) => {
@@ -49,10 +64,31 @@ export class OverlayDispatcherService {
     );
   }
 
-  updateOverlay(targetNativeElementRef: any, overlayConfigurationRef: OverlayConfiguration) {
-    if(overlayConfigurationRef.id) {
+  readOverlay(targetNativeElementRef: any, overlayConfigurationRef: OverlayConfiguration) {
+    return new Observable<OverlayConfiguration>(
+      (observer) => {
+        const handler = (overlayConfigurationRef = null) => {
+          if(overlayConfigurationRef) {
+            observer.next(overlayConfigurationRef);
+          } else {
+            observer.complete();
+          }
+        };
+        overlayConfigurationRef.action = 'READ';
+        overlayConfigurationRef.self = { overlayReadCallback: handler };
+        targetNativeElementRef.dispatchEvent(new CustomEvent('overlayEvent',
+          {
+            bubbles: true,
+            detail: overlayConfigurationRef
+          }));
+      }
+    );
+  }
+
+  updateOverlay(overlayConfigurationRef: OverlayConfiguration) {
+    if(overlayConfigurationRef.id && overlayConfigurationRef.hostNativeElementRef) {
       overlayConfigurationRef.action = 'UPDATE';
-      targetNativeElementRef.dispatchEvent(new CustomEvent('overlayEvent',
+      overlayConfigurationRef.hostNativeElementRef.dispatchEvent(new CustomEvent('overlayEvent',
         {
           bubbles: true,
           detail: overlayConfigurationRef
@@ -60,10 +96,10 @@ export class OverlayDispatcherService {
     }
   }
 
-  deleteOverlay(targetNativeElementRef: any, overlayConfigurationRef: OverlayConfiguration) {
-    if(overlayConfigurationRef.id) {
+  deleteOverlay(overlayConfigurationRef: OverlayConfiguration) {
+    if(overlayConfigurationRef.id && overlayConfigurationRef.hostNativeElementRef) {
       overlayConfigurationRef.action = 'DELETE';
-      targetNativeElementRef.dispatchEvent(new CustomEvent('overlayEvent',
+      overlayConfigurationRef.hostNativeElementRef.dispatchEvent(new CustomEvent('overlayEvent',
         {
           bubbles: true,
           detail: overlayConfigurationRef
