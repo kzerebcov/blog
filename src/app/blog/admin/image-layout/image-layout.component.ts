@@ -13,6 +13,7 @@ import {OverlayConfiguration, OverlayDispatcherService} from "../../../overlay/o
 import {PopupMessageComponent} from "../popup-message.component";
 import {ImageToolbarComponent} from "./image-toolbar.component";
 import {filter} from "rxjs/operators";
+import {ImageCropComponent} from "./image-crop.component";
 
 export enum ImageLayoutView {
   Upload,
@@ -29,19 +30,31 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
   ImageLayoutView: typeof ImageLayoutView = ImageLayoutView;
   view: ImageLayoutView = ImageLayoutView.Upload;
 
-  @Input() imageData: Blob;
+  @Input() imageData: string;
   @Output() change: EventEmitter<ImageData> = new EventEmitter<ImageData>();
   @ViewChild('imageLayoutContent', { static: false }) imageLayoutContent: ElementRef;
   @ViewChild('imagePreviewContainer', { static: false }) imagePreviewContainer: ElementRef;
 
-  private imageToolbar: OverlayConfiguration = null;
+  private imageToolbar = false;
+  private overlayRef: OverlayConfiguration = null;
   private imageContainer: any = {
     style: '',
     url: '',
     alt: ''
-  }
+  };
 
-  constructor(private overlayDispatcher: OverlayDispatcherService, private elementRef: ElementRef, private renderer: Renderer2) { }
+  constructor(private overlayDispatcherService: OverlayDispatcherService, private elementRef: ElementRef, private renderer: Renderer2) {
+    this.overlayDispatcherService.$overlayDispatcher.pipe(
+        filter((overlayRef) => overlayRef.action === 'CREATE'),
+        filter((overlayRef) => overlayRef.subject === '/image/preview/crop')
+      ).subscribe((overlayRef) => {
+        (overlayRef.targetComponentRef.instance as ImageCropComponent).imageData = this.imageData;
+        (overlayRef.targetComponentRef.instance as ImageCropComponent).croppedImage.subscribe((croppedImage) => {
+          this.overlayDispatcherService.deleteOverlay(overlayRef);
+          this.setImage(croppedImage);
+        });
+      });
+  }
 
   ngOnInit() {}
 
@@ -54,25 +67,24 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
     });
   }
 
-  setImage(imageData: Blob) {
+  setImage(imageData: string) {
+    console.log('SETTING IMAGE!');
     this.imageData = imageData;
     this.imageContainer = {
       url: this.imageData,
       style: '',
       alt: ''
-    }
+    };
   }
 
   mouseGlobalEventHandler(mouseEvent) {
-    if(this.view == ImageLayoutView.Preview) {
+    if (this.view === ImageLayoutView.Preview) {
       mouseEvent.preventDefault();
       const rect = this.imagePreviewContainer.nativeElement.getBoundingClientRect();
-      if(rect.x < mouseEvent.x && mouseEvent.x < (rect.x + rect.width)
-        && rect.y < mouseEvent.y && mouseEvent.y < (rect.y + rect.height)) {
-        this.showImageToolbar();
-      } else {
-        this.hideImageToolbar();
-      }
+      this.imageToolbar = (rect.x < mouseEvent.x && mouseEvent.x < (rect.x + rect.width)
+        && rect.y < mouseEvent.y && mouseEvent.y < (rect.y + rect.height)) ?
+        (this.imageToolbar ? true : this.showToolbar()) :
+        (this.imageToolbar ? this.hideToolbar() : false);
     }
   }
 
@@ -80,39 +92,32 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
     console.log(imageToolbarAction);
   }
 
-  showImageToolbar() {
-    if(!this.imageToolbar) {
-      this.overlayDispatcher.createOverlay(this.imagePreviewContainer.nativeElement, {
+  showToolbar() {
+    if (!this.overlayRef) {
+      this.overlayDispatcherService.createOverlay(this.imagePreviewContainer.nativeElement, {
         subject: '/image/preview/toolbar',
-        classes: ['default-overlay-blank'],
         component: ImageToolbarComponent,
         position: { top: 20, left: 20 },
+        classes: [],
+        wrap: true,
         zIndex: 3
-      }).pipe(filter(overlayRef => overlayRef.subject === '/image/preview/toolbar'))
-        .subscribe((overlayRef) => {
-        this.imageToolbar = overlayRef;
-        const targetComponentRef: ImageToolbarComponent = this.imageToolbar.targetComponentRef.instance;
-        targetComponentRef.imageData = this.imageData;
-        targetComponentRef.toolbarAction.subscribe((e) => {
-          this.toolbarActionHandler(e);
-        });
+      }).pipe(
+        filter(overlayRef => overlayRef.action.match('CREATE|UPDATE') != null),
+        filter(overlayRef => overlayRef.subject === '/image/preview/toolbar')
+      ).subscribe((overlayRef) => {
+          this.overlayRef = overlayRef;
+          (this.overlayRef.targetComponentRef.instance as ImageToolbarComponent).toolbarAction.subscribe(this.toolbarActionHandler);
       });
     }
+    return true;
   }
 
-  hideImageToolbar() {
-    if(this.imageToolbar) {
-      this.overlayDispatcher.deleteOverlay(this.imageToolbar);
-      this.imageToolbar = null;
+  hideToolbar() {
+    if (this.overlayRef) {
+      this.overlayDispatcherService.deleteOverlay(this.overlayRef);
+      this.overlayRef = null;
     }
-  }
-
-  showImageCrop() {
-
-  }
-
-  hideImageCrop() {
-
+    return false;
   }
 
   changeView(view: ImageLayoutView) {
@@ -128,12 +133,12 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
   test(y): void {
     console.log('UPDATE-TEST');
     console.log(y);
-    this.overlayDispatcher.updateOverlay(y);
+    this.overlayDispatcherService.updateOverlay(y);
   }
 
   showPopupMessage(message: string) {
     console.log('POPUP MESSAGE: ' + message);
-    this.overlayDispatcher.createOverlay(this.imageLayoutContent.nativeElement, {
+    this.overlayDispatcherService.createOverlay(this.imageLayoutContent.nativeElement, {
       component: PopupMessageComponent,
       classes: ['popup-message-overlay'],
       position: { left: 'center' }

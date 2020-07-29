@@ -30,7 +30,7 @@ export class PopupMessageComponent implements OnInit {
   overlayHandlerCallback(overlayConfigurationRef: OverlayConfiguration): void {
     if(!this.overlayRef) {
       this.overlayRef = overlayConfigurationRef;
-      this.overlayDispatcher.wrapComponentBoundingRect(overlayConfigurationRef);
+      this.overlayDispatcher.wrapComponent(overlayConfigurationRef);
     }
   }
 

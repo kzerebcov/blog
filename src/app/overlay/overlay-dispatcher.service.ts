@@ -1,40 +1,55 @@
 import {Injectable, Renderer2} from '@angular/core';
-import { Observable } from "rxjs";
-
-export interface OverlaySubscriber {
-
-}
+import { Observable } from 'rxjs';
+import {filter, tap} from "rxjs/operators";
 
 export interface OverlayConfiguration {
-  id?: string,
-  action?: string,
-  component?: any,
-  window?: boolean,
-  multilayer?: boolean,
-  classes?: any[],
-  self?: any,
-  subject?: string,
-  targetComponentRef?: any,
-  hostNativeElementRef?: any,
-  overlayNativeElementRef?: any,
-  targetNativeElementRef?: any,
-  zIndex?: number,
+  id?: string;
+  action?: string;
+  component?: any;
+  properties?: any;
+  window?: boolean;
+  multilayer?: boolean;
+  wrap?: boolean;
+  wrapped?: boolean;
+  classes?: any[];
+  self?: any;
+  subject?: string;
+  targetComponentRef?: any;
+  hostNativeElementRef?: any;
+  overlayNativeElementRef?: any;
+  targetNativeElementRef?: any;
+  zIndex?: number;
   position?: {
     top?: any,
     left?: any,
     width?: any,
     height?: any
-  }
+  };
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class OverlayDispatcherService {
-  constructor() { }
-  wrapComponentBoundingRect(overlayConfigurationRef: OverlayConfiguration): void {
-      let rect = overlayConfigurationRef.targetNativeElementRef.firstChild.getBoundingClientRect();
-      if(!overlayConfigurationRef.position) {
+  dispatcherObservers = [];
+  $overlayDispatcher: Observable<OverlayConfiguration> = new Observable<OverlayConfiguration>((observer) => {
+    this.dispatcherObservers.push(observer);
+    const parent = this;
+    return {
+      unsubscribe() {
+        console.log(parent);
+        console.log('DO1');
+        parent.dispatcherObservers.splice(parent.dispatcherObservers.indexOf(observer), 1);
+        console.log('DO2');
+      }
+    };
+  });
+
+  constructor() {}
+
+  wrapComponent(overlayConfigurationRef: OverlayConfiguration): void {
+      const rect = overlayConfigurationRef.targetNativeElementRef.firstChild.getBoundingClientRect();
+      if (!overlayConfigurationRef.position) {
         overlayConfigurationRef.position = {};
         overlayConfigurationRef.position.left = 'center';
         overlayConfigurationRef.position.top = 0;
@@ -44,12 +59,19 @@ export class OverlayDispatcherService {
       this.updateOverlay(overlayConfigurationRef);
   }
 
+  modifyOverlay(overlayConfigurationRef: OverlayConfiguration): void {
+    if (overlayConfigurationRef.wrap && !overlayConfigurationRef.wrapped) {
+      overlayConfigurationRef.wrapped = true;
+      this.wrapComponent(overlayConfigurationRef);
+    }
+  }
+
   createOverlay(targetNativeElementRef: any, overlayConfigurationRef: OverlayConfiguration) {
     return new Observable<OverlayConfiguration>(
       (observer) => {
-        const handler = (overlayConfigurationRef) => {
-          observer.next(overlayConfigurationRef);
-          if(overlayConfigurationRef.action.toUpperCase() === 'DELETE') {
+        const handler = (overlayRef) => {
+          observer.next(overlayRef);
+          if (overlayRef.action.toUpperCase() === 'DELETE') {
             observer.complete();
           }
         };
@@ -61,15 +83,20 @@ export class OverlayDispatcherService {
             detail: overlayConfigurationRef
           }));
       }
-    );
+    ).pipe(tap((overlayRef) => {
+      this.modifyOverlay(overlayRef);
+      this.dispatcherObservers.forEach((observer) => {
+        observer.next(overlayRef);
+      });
+    }));
   }
 
   readOverlay(targetNativeElementRef: any, overlayConfigurationRef: OverlayConfiguration) {
     return new Observable<OverlayConfiguration>(
       (observer) => {
-        const handler = (overlayConfigurationRef = null) => {
-          if(overlayConfigurationRef) {
-            observer.next(overlayConfigurationRef);
+        const handler = (overlayRef = null) => {
+          if (overlayRef) {
+            observer.next(overlayRef);
           } else {
             observer.complete();
           }
@@ -81,12 +108,11 @@ export class OverlayDispatcherService {
             bubbles: true,
             detail: overlayConfigurationRef
           }));
-      }
-    );
+      });
   }
 
   updateOverlay(overlayConfigurationRef: OverlayConfiguration) {
-    if(overlayConfigurationRef.id && overlayConfigurationRef.hostNativeElementRef) {
+    if (overlayConfigurationRef.id && overlayConfigurationRef.hostNativeElementRef) {
       overlayConfigurationRef.action = 'UPDATE';
       overlayConfigurationRef.hostNativeElementRef.dispatchEvent(new CustomEvent('overlayEvent',
         {
@@ -97,7 +123,7 @@ export class OverlayDispatcherService {
   }
 
   deleteOverlay(overlayConfigurationRef: OverlayConfiguration) {
-    if(overlayConfigurationRef.id && overlayConfigurationRef.hostNativeElementRef) {
+    if (overlayConfigurationRef.id && overlayConfigurationRef.hostNativeElementRef) {
       overlayConfigurationRef.action = 'DELETE';
       overlayConfigurationRef.hostNativeElementRef.dispatchEvent(new CustomEvent('overlayEvent',
         {

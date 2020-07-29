@@ -12,7 +12,7 @@ import {
 import {OverlayComponent} from './overlay.component';
 import {WrapperContainerComponent} from './wrapper-container.component';
 import {isArray, isNull} from 'util';
-import {OverlayConfiguration} from "./overlay-dispatcher.service";
+import {OverlayConfiguration} from './overlay-dispatcher.service';
 
 @Directive({
   selector: '[appOverlay]'
@@ -32,13 +32,17 @@ export class OverlayDirective implements OnDestroy, OnInit {
   ) { }
 
   callback(overlayConfigurationRef: OverlayConfiguration): void {
-    for (let callbackSubscriber of this.subscribers) {
-      callbackSubscriber.overlayHandlerCallback(overlayConfigurationRef);
+    for (const callbackSubscriber of this.subscribers) {
+      if (callbackSubscriber.overlayHandlerCallback) {
+        callbackSubscriber.overlayHandlerCallback(overlayConfigurationRef);
+      } else if (callbackSubscriber.hasOwnProperty('overlayConfigurationRef')) {
+        callbackSubscriber.overlayConfigurationRef = overlayConfigurationRef;
+      }
     }
   }
 
   subscribe(callbackSubscriber: any = null): void {
-    if(callbackSubscriber && callbackSubscriber.overlayHandlerCallback) {
+    if (callbackSubscriber) {
       this.subscribers.push(callbackSubscriber);
     }
   }
