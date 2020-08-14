@@ -44,10 +44,8 @@ export class PostComponent implements OnInit {
               url: '',
               alt: '',
               text: response.article,
-              width: 0,
-              height: 0,
               subtitle: '',
-              style: ''
+              css: ''
             }];
           }
 

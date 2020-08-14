@@ -9,11 +9,11 @@ import {
   ViewChild,
   Renderer2
 } from '@angular/core';
-import {OverlayConfiguration, OverlayDispatcherService} from "../../../overlay/overlay-dispatcher.service";
-import {PopupMessageComponent} from "../popup-message.component";
-import {ImageToolbarComponent} from "./image-toolbar.component";
 import {filter} from "rxjs/operators";
 import {ImageCropComponent} from "./image-crop.component";
+import {ImageToolbarComponent} from "./image-toolbar.component";
+import {PopupMessageComponent} from "../popup-message.component";
+import {OverlayConfiguration, OverlayDispatcherService} from "../../../overlay/overlay-dispatcher.service";
 
 export enum ImageLayoutView {
   Upload,
@@ -30,8 +30,8 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
   ImageLayoutView: typeof ImageLayoutView = ImageLayoutView;
   view: ImageLayoutView = ImageLayoutView.Upload;
 
-  @Input() imageData: string;
-  @Output() change: EventEmitter<ImageData> = new EventEmitter<ImageData>();
+  @Input() image: any;
+  @Output() change: EventEmitter<any> = new EventEmitter<any>();
   @ViewChild('imageLayoutContent', { static: false }) imageLayoutContent: ElementRef;
   @ViewChild('imagePreviewContainer', { static: false }) imagePreviewContainer: ElementRef;
 
@@ -48,7 +48,7 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
         filter((overlayRef) => overlayRef.action === 'CREATE'),
         filter((overlayRef) => overlayRef.subject === '/image/preview/crop')
       ).subscribe((overlayRef) => {
-        (overlayRef.targetComponentRef.instance as ImageCropComponent).imageData = this.imageData;
+        (overlayRef.targetComponentRef.instance as ImageCropComponent).imageData = this.image.url;
         (overlayRef.targetComponentRef.instance as ImageCropComponent).croppedImage.subscribe((croppedImage) => {
           this.overlayDispatcherService.deleteOverlay(overlayRef);
           this.setImage(croppedImage);
@@ -56,7 +56,10 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
       });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    console.log(this.image);
+    this.changeView(ImageLayoutView.Preview);
+  }
 
   ngAfterViewInit() {
     ['mousemove'].forEach((eventName) => {
@@ -69,9 +72,10 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
 
   setImage(imageData: string) {
     console.log('SETTING IMAGE!');
-    this.imageData = imageData;
+    this.image.url = imageData;
+    this.change.emit(this.image);
     this.imageContainer = {
-      url: this.imageData,
+      url: this.image.url,
       style: '',
       alt: ''
     };
@@ -121,11 +125,11 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
   }
 
   changeView(view: ImageLayoutView) {
-    this.imageContainer.url && this.imageContainer.url ? this.view = view : this.view = ImageLayoutView.Upload;
+    this.image.url && this.image.url ? this.view = view : this.view = ImageLayoutView.Upload;
   }
 
   updateLoadStatus(status: any) {
-    if(status.loading) {
+    if (status.loading) {
       this.showPopupMessage('Loading data...');
     }
   }

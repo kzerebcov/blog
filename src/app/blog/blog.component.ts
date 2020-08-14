@@ -51,6 +51,6 @@ export class BlogComponent implements OnInit {
   }
 
   updateView(slug: string) {
-    alert('BlogComponent (parent) / UPDATED: ' + slug);
+    console.log('BlogComponent (parent) / UPDATED: ' + slug);
   }
 }

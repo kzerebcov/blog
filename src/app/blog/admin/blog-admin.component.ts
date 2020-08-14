@@ -49,10 +49,9 @@ export class Editor {
       excerpt: ''
     },
     image: {
-      width: 0,
-      height: 0,
       url: '',
-      alt: ''
+      alt: '',
+      css: ''
     },
     article: []
   };
@@ -159,7 +158,11 @@ export class Editor {
     return str;
   }
 
-  public preview() {
+  new() {
+    this.view = EditorView.New;
+  }
+
+  preview() {
     this.post.article = [];
     this.queue.forEach((part) => this.post.article.push(part.data));
     this.view = EditorView.Preview;
@@ -204,10 +207,8 @@ export class EditorBlock {
     url: '',
     alt: '',
     text: '',
-    width: 0,
-    height: 0,
     subtitle: '',
-    style: ''
+    css: ''
   };
 
   constructor(type: string, focus: boolean = false) {

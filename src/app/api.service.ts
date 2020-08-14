@@ -78,23 +78,24 @@ export interface Post {
   slug: string,
   header: PostHeader,
   image: {
-    width: number,
-    height: number,
+    width?: number,
+    height?: number,
     url: string,
-    alt: string
+    alt: string,
+    css?: any
   },
   article: Part[]
 }
 
 export interface Part {
   type: string,
-  url: string,
-  alt: string,
-  text: string,
-  width: number,
-  height: number,
-  subtitle: string,
-  style: string
+  url?: string,
+  alt?: string,
+  text?: string,
+  width?: number,
+  height?: number,
+  subtitle?: string,
+  css?: string
 }
 
 export interface Blog {

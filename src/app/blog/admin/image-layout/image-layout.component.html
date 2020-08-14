@@ -3,10 +3,10 @@
       <li class="nav-item" [class.active]="view==ImageLayoutView.Upload" (click)="changeView(ImageLayoutView.Upload)">
         <a class="nav-link">Upload</a>
       </li>
-      <li class="nav-item" [class.active]="view==ImageLayoutView.Preview" [class.disabled]="!imageData.url" (click)="changeView(ImageLayoutView.Preview)">
+      <li class="nav-item" [class.active]="view==ImageLayoutView.Preview" [class.disabled]="!image.url" (click)="changeView(ImageLayoutView.Preview)">
         <a class="nav-link">Preview</a>
       </li>
-      <li class="pull-right" [class.active]="view==ImageLayoutView.Settings" [class.disabled]="!imageData.url" (click)="changeView(ImageLayoutView.Settings)">
+      <li class="pull-right" [class.active]="view==ImageLayoutView.Settings" [class.disabled]="!image.url" (click)="changeView(ImageLayoutView.Settings)">
         <a class="nav-link">Settings</a>
       </li>
     </ul>
@@ -18,7 +18,7 @@
         </div>
         <div id="imageLayoutPreview" *ngSwitchCase="ImageLayoutView.Preview">
           <div class="image-preview-container" *appOverlay="'^/image/preview'" #imagePreviewContainer>
-            <img src="{{imageContainer.url}}" alt="{{imageContainer.alt}}">
+            <img src="{{image.url}}" alt="{{image.alt}}">
           </div>
         </div>
         <div id="imageLayoutSettings" *ngSwitchCase="ImageLayoutView.Settings">
