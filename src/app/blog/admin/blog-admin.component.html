@@ -88,19 +88,20 @@
             </form>
           </ng-container>
           <ng-container *ngSwitchCase="editor.EditorView.Preview">
-            <ul class="nav nav-tabs" id="imageLayoutControl" role="tablist">
-              <li class="nav-item">
-                <a class="nav-link">Title</a>
+            <ul class="nav nav-tabs" role="tablist">
+              <li class="nav-item" [class.active]="editor.previewTab == editor.EditorPreview.Header" (click)="editor.previewTab = editor.EditorPreview.Header">
+                <a class="nav-link">Header</a>
               </li>
-              <li class="nav-item">
+              <li class="nav-item" [class.active]="editor.previewTab == editor.EditorPreview.Post" (click)="editor.previewTab = editor.EditorPreview.Post">
                 <a class="nav-link">Post</a>
               </li>
-              <li class="pull-right">
-                <a class="nav-link">Settings</a>
+              <li class="pull-right" [class.enabled]="false" [class.active]="editor.previewTab == editor.EditorPreview.Options" (click)="editor.previewTab = editor.EditorPreview.Options">
+                <a class="nav-link">Options</a>
               </li>
             </ul>
-            <app-post-header [post]="editor.post"></app-post-header>
-            <app-post [post]="editor.post"></app-post>
+            <app-post-header [hidden]="editor.previewTab !== editor.EditorPreview.Header" [post]="editor.post"></app-post-header>
+            <app-post [hidden]="editor.previewTab !== editor.EditorPreview.Post" [post]="editor.post"></app-post>
+            <div [hidden]="editor.previewTab !== editor.EditorPreview.Options">[Options]</div>
           </ng-container>
         </ng-container>
       </div>

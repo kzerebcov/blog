@@ -25,6 +25,7 @@ export class ImageToolbarComponent {
     this.overlayDispatcher.$overlayDispatcher.pipe(filter((overlayRef) => overlayRef.subject === '/image/preview/toolbar'))
       .subscribe((overlayRef) => {
         this.overlayRef = overlayRef;
+        console.log('TOOLBAR: ' + this.overlayRef.properties.chainId);
       });
   }
 
@@ -38,8 +39,9 @@ export class ImageToolbarComponent {
           this.overlayDispatcher.createOverlay(this.overlayRef.hostNativeElementRef, {
             subject: '/image/preview/crop',
             component: ImageCropComponent,
+            properties: { chainId: this.overlayRef.properties.chainId },
             classes: [],
-            zIndex: 2
+            zIndex: 2,
           }).pipe(
               filter(overlayRef => overlayRef.action === 'CREATE'),
               filter(overlayRef => overlayRef.subject === '/image/preview/crop')

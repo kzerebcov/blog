@@ -35,6 +35,7 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
   @ViewChild('imageLayoutContent', { static: false }) imageLayoutContent: ElementRef;
   @ViewChild('imagePreviewContainer', { static: false }) imagePreviewContainer: ElementRef;
 
+  private chainId: string = (Math.random().toString(36) + '00000000000000000').slice(2, 8 + 2);
   private imageToolbar = false;
   private overlayRef: OverlayConfiguration = null;
   private imageContainer: any = {
@@ -46,8 +47,11 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
   constructor(private overlayDispatcherService: OverlayDispatcherService, private elementRef: ElementRef, private renderer: Renderer2) {
     this.overlayDispatcherService.$overlayDispatcher.pipe(
         filter((overlayRef) => overlayRef.action === 'CREATE'),
-        filter((overlayRef) => overlayRef.subject === '/image/preview/crop')
+        filter((overlayRef) => overlayRef.subject === '/image/preview/crop'),
+        filter((overlayRef) => overlayRef.properties.chainId === this.chainId)
       ).subscribe((overlayRef) => {
+        console.log('RESULT MATCHED');
+        console.log(this.chainId);
         (overlayRef.targetComponentRef.instance as ImageCropComponent).imageData = this.image.url;
         (overlayRef.targetComponentRef.instance as ImageCropComponent).croppedImage.subscribe((croppedImage) => {
           this.overlayDispatcherService.deleteOverlay(overlayRef);
@@ -101,6 +105,7 @@ export class ImageLayoutComponent implements OnInit, AfterViewInit {
       this.overlayDispatcherService.createOverlay(this.imagePreviewContainer.nativeElement, {
         subject: '/image/preview/toolbar',
         component: ImageToolbarComponent,
+        properties: { chainId: this.chainId },
         position: { top: 20, left: 20 },
         classes: [],
         wrap: true,

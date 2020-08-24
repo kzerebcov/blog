@@ -25,6 +25,12 @@ export enum EditorView {
   Preview
 }
 
+export enum EditorPreview {
+  Header,
+  Post,
+  Options
+}
+
 export enum EditorAction {
   Ready,
   Loading,
@@ -58,6 +64,9 @@ export class Editor {
 
   EditorView: typeof EditorView = EditorView;
   view: EditorView = EditorView.New;
+
+  EditorPreview: typeof EditorPreview = EditorPreview;
+  previewTab: EditorPreview = EditorPreview.Post;
 
   EditorAction: typeof EditorAction = EditorAction;
   action: EditorAction = EditorAction.Ready;
